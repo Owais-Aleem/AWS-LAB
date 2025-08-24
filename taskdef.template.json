@@ -1,0 +1,116 @@
+{
+  "family": "emp-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "__EXECUTION_ROLE_ARN__",
+  "taskRoleArn": "__TASK_ROLE_ARN__",
+  "containerDefinitions": [
+    {
+      "name": "frontend",
+      "image": "__FRONTEND_IMAGE__",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "__LOG_GROUP__",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "frontend"
+        }
+      }
+    },
+    {
+      "name": "backend",
+      "image": "__BACKEND_IMAGE__",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "localhost"
+        },
+        {
+          "name": "DB_USER",
+          "value": "appuser"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "appsecret"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "company"
+        },
+        {
+          "name": "DB_PORT",
+          "value": "5432"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "__LOG_GROUP__",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "backend"
+        }
+      },
+      "dependsOn": [
+        {
+          "containerName": "db",
+          "condition": "START"
+        }
+      ]
+    },
+    {
+      "name": "db",
+      "image": "__DB_IMAGE__",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5432,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "POSTGRES_DB",
+          "value": "company"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "appuser"
+        },
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "appsecret"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "__LOG_GROUP__",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "db"
+        }
+      }
+    }
+  ]
+}

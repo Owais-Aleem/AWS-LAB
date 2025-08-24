@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee Mini App</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #141a33;
+      --card2: #10162a;
+      --text: #e6e9f5;
+      --muted: #a5b0d6;
+      --accent: #6ee7ff;
+      --btn: #6c5ce7;
+      --btn2: #00d4ff;
+      --red: #ff6b6b;
+      --green: #2ee6a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, Apple Color Emoji, Segoe UI Emoji;
+      background: radial-gradient(1000px 600px at 20% -20%, rgba(108,92,231,.25), transparent),
+                  radial-gradient(800px 500px at 120% 0%, rgba(0,212,255,.25), transparent),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: start center;
+      padding: 32px 16px 64px;
+    }
+    .container { width: 100%; max-width: 1000px; display: grid; gap: 20px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    header h1 { margin: 0; font-weight: 800; letter-spacing: .3px; }
+    header .badge { font-size: 12px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    @media (max-width: 840px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    .card h2 { margin-top: 0; }
+    .row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; margin-bottom: 12px; align-items: center; }
+    label { color: var(--muted); }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: #0e1430;
+      color: var(--text);
+      outline: none;
+    }
+    .actions { display:flex; gap:12px; flex-wrap: wrap; }
+    button {
+      appearance: none; border: 0;
+      padding: 10px 16px; border-radius: 12px; font-weight: 700;
+      cursor: pointer; transition: transform .04s ease, box-shadow .2s ease, opacity .2s ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,.25);
+    }
+    button.primary { background: linear-gradient(90deg, var(--btn) 0%, var(--btn2) 100%); color: white; }
+    button.secondary { background: #0f1533; color: var(--text); border: 1px solid rgba(255,255,255,.08); }
+    button:active { transform: translateY(1px); }
+    .status { min-height: 20px; color: var(--muted); font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .ok { color: var(--green); } .err { color: var(--red); }
+    footer { text-align: center; color: var(--muted); margin-top: 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Employee Directory</h1>
+        <div class="badge">Frontend + Backend + DB • Docker • ECS • Jenkins</div>
+      </div>
+      <div class="status" id="health">checking backend…</div>
+    </header>
+    <div class="grid">
+      <section class="card">
+        <h2>Add Employee</h2>
+        <div class="row">
+          <label for="empId">Employee ID</label>
+          <input id="empId" placeholder="e.g. E-1001" />
+        </div>
+        <div class="row">
+          <label for="empName">Name</label>
+          <input id="empName" placeholder="e.g. Ayesha Khan" />
+        </div>
+        <div class="actions">
+          <button class="primary" id="btnAdd">Submit</button>
+          <span class="status" id="addStatus"></span>
+        </div>
+      </section>
+      <section class="card">
+        <h2>All Employees</h2>
+        <div class="actions">
+          <button class="secondary" id="btnLoad">See All Employees</button>
+          <span class="status" id="listStatus"></span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </section>
+    </div>
+    <footer>Tip: In AWS, your ALB should forward <code>/api/*</code> to the backend container.</footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

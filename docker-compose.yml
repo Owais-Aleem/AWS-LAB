@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  db:
+    build: ./db
+    container_name: emp-db
+    environment:
+      POSTGRES_DB: company
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: appsecret
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: emp-backend
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: appsecret
+      DB_NAME: company
+      DB_PORT: 5432
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: emp-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8081:80"
+
+volumes:
+  db-data:

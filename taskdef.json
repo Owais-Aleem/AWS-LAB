@@ -1,0 +1,53 @@
+{
+  "family": "employee-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::951873530887:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::951873530887:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "frontend",
+      "image": "951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/lab-frontend:1",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/employee-app",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "frontend"
+        }
+      }
+    },
+    {
+      "name": "backend",
+      "image": "951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/lab-backend:1",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "PORT", "value": "3000" },
+        { "name": "NODE_ENV", "value": "production" }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/employee-app",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    }
+  ]
+}
