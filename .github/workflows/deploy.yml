@@ -1,0 +1,72 @@
+name: Deploy to AWS ECS Fargate
+
+on:
+  push:
+    branches: [ "main" ]   # runs when you push to main branch
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1   # your region
+
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build and push backend
+      - name: Build, Tag, and Push backend
+        run: |
+          docker build -t emp-backend ./backend
+          docker tag emp-backend:latest 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-backend:latest
+          docker push 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-backend:latest
+
+      # Build and push frontend
+      - name: Build, Tag, and Push frontend
+        run: |
+          docker build -t emp-frontend ./frontend
+          docker tag emp-frontend:latest 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-frontend:latest
+          docker push 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-frontend:latest
+
+      # Build and push db
+      - name: Build, Tag, and Push db
+        run: |
+          docker build -t emp-db ./db
+          docker tag emp-db:latest 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-db:latest
+          docker push 951873530887.dkr.ecr.ap-northeast-1.amazonaws.com/owais/emp-db:latest
+
+      # Update ECS Service (backend)
+      - name: Deploy backend service
+        run: |
+          aws ecs update-service \
+            --cluster emplab \
+            --service backend-service \
+            --force-new-deployment
+
+      # Update ECS Service (frontend)
+      - name: Deploy frontend service
+        run: |
+          aws ecs update-service \
+            --cluster emplab \
+            --service frontend-service \
+            --force-new-deployment
+
+      # Update ECS Service (db)
+      - name: Deploy db service
+        run: |
+          aws ecs update-service \
+            --cluster emplab \
+            --service db-service \
+            --force-new-deployment
